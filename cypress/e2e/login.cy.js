@@ -1,14 +1,17 @@
 
 describe('login', () => {
   beforeEach(() => {
-     cy.visit('http://localhost:4000')
+     cy.visit(Cypress.env('URL'))
+     cy.screenshot('apos-visitar-pagina')
   })
   it('Login com dados validos deve permitir entrada no sistema', () => {
     cy.fixture('credenciais').then(credenciais => {
       cy.get('#username').click().type(credenciais.valida.usuario)
       cy.get('#senha').click().type(credenciais.valida.senha)
     })  
-    cy.get('#login-section > .btn').click()
+    cy.screenshot('apos-preencher-campos-validas')
+    cy.contains('button', 'Entrar').click()
+    cy.screenshot('apos-clicar-no-botao-entrar')
 
     cy.contains('h4','Realizar Transferência').should('be.visible')
 
