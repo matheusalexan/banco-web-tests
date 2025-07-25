@@ -2,7 +2,6 @@ describe('Transferencias', () => {
   beforeEach (() => {
     cy.visit('/')
     cy.fazerLoginComCredenciasValidas()
-     
   }) 
 
   it('Deve transferir quando informo dados e valor validos', () => {
@@ -14,5 +13,4 @@ describe('Transferencias', () => {
     cy.realizarTransferencia('Maria Oliveira', 'João da Silva', '6000')
     cy.verificarMensagemNoToast('Autenticação necessária para transferências acima de R$5.000,00.')
   })
-
 })
