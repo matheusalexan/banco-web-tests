@@ -1,0 +1,101 @@
+diff --git a/cypress/e2e/login.cy.js b/cypress/e2e/login.cy.js
+index 563514b..edb6d8e 100644
+--- a/cypress/e2e/login.cy.js
++++ b/cypress/e2e/login.cy.js
+@@ -1,30 +1,16 @@
+-
+ describe('login', () => {
+   beforeEach(() => {
+      cy.visit('/')
+      cy.screenshot('apos-visitar-pagina')
+   })
+   it('Login com dados validos deve permitir entrada no sistema', () => {
+-    cy.fixture('credenciais').then(credenciais => {
+-      cy.get('#username').click().type(credenciais.valida.usuario)
+-      cy.get('#senha').click().type(credenciais.valida.senha)
+-    })  
+-    cy.screenshot('apos-preencher-campos-validas')
+-    cy.contains('button', 'Entrar').click()
+-    cy.screenshot('apos-clicar-no-botao-entrar')
+-
++    cy.fazerLoginComCredenciasValidas()
+     cy.contains('h4','Realizar Transferência').should('be.visible')
+ 
+   })
+     it('Login com dados invalidos deve apresentar mensagem de erro', () => {
+-    cy.fixture('credenciais').then(credenciais => { 
+-      cy.get('#username').click().type(credenciais.invalida.usuario)
+-      cy.get('#senha').click().type(credenciais.invalida.senha)
+-    })
+-    cy.contains('button', 'Entrar').click()
+-
+-    cy.get('.toast').should('have.text', 'Erro no login. Tente novamente.')
+-    
+-
++    cy.fazerLoginComCredenciasInvalidas()
++    cy.verificarMensagemNoToast('Erro no login. Tente novamente.')
++  
+   })
+ })
+\ No newline at end of file
+diff --git a/cypress/e2e/transferencia.cy.js b/cypress/e2e/transferencia.cy.js
+index 5c52df6..a4ceb45 100644
+--- a/cypress/e2e/transferencia.cy.js
++++ b/cypress/e2e/transferencia.cy.js
+@@ -1,27 +1,18 @@
+-
+-
+ describe('Transferencias', () => {
+   beforeEach (() => {
+     cy.visit('/')
+-    cy.fixture('credenciais').then(credenciais => {
+-      cy.get('#username').click().type(credenciais.valida.usuario)
+-      cy.get('#senha').click().type(credenciais.valida.senha)
+-    })  
+-    cy.contains('button', 'Entrar').click()
+-  })
+-  it('Deve transferir quando informo dados e valor validos', () => {
+-    cy.get('label[for= "conta-origem"]').parent().as('campo-conta-origem')
+-    cy.get('@campo-conta-origem').click()
+-    cy.get('@campo-conta-origem').contains('Maria Oliveira').click()
++    cy.fazerLoginComCredenciasValidas()
++     
++  }) 
+ 
+-    cy.get('label[for= "conta-destino"]').parent().as('campo-conta-destino')
+-    cy.get('@campo-conta-destino').click()
+-    cy.get('@campo-conta-destino').contains('João da Silva').click()
+-
+-    cy.get('#valor').click().type('11')
+-    cy.contains('button', 'Transferir').click()
++  it('Deve transferir quando informo dados e valor validos', () => {
++    cy.realizarTransferencia('Maria Oliveira', 'João da Silva', '11')
++    cy.verificarMensagemNoToast('Transferência realizada!')
++  })
+ 
+-    cy.get('.toast').should('have.text', 'Transferência realizada!')
++  it('Deve apresentar erro quando tentar trasnferir mais que 5000 sem o token', () => {
++    cy.realizarTransferencia('Maria Oliveira', 'João da Silva', '6000')
++    cy.verificarMensagemNoToast('Autenticação necessária para transferências acima de R$5.000,00.')
+   })
+ 
+ })
+\ No newline at end of file
+diff --git a/cypress/support/commands.js b/cypress/support/commands.js
+index 66ea16e..6bd2392 100644
+--- a/cypress/support/commands.js
++++ b/cypress/support/commands.js
+@@ -22,4 +22,10 @@
+ //
+ //
+ // -- This will overwrite an existing command --
+-// Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
+\ No newline at end of file
++// Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
++// comando customizados para interagir com a aplicação
++import './commands/common'
++
++//Comando customizados para interagir com funcionalidades especificas
++import './commands/login'
++import './commands/transferencia'
+\ No newline at end of file
